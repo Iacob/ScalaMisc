@@ -8,14 +8,14 @@ class SqlBox {
   val _paramList = collection.mutable.ListBuffer[Any]()
   var _sql:String = null
 
-  def checkParam(condition:Boolean, params:Any*):Boolean = {
+  def addParam(condition:Boolean, params:Any*):Boolean = {
     if (condition) {
       params.foreach((param:Any) => {_paramList += param})
     }
     return condition
   }
 
-  def checkIfMapContainsKey(params:Map[String, Any], keys:String*):Boolean = {
+  def addIfContainsKey(params:Map[String, Any], keys:String*):Boolean = {
     var checkResult = true
     keys.foreach((key) => {
       if (!params.contains(key)) {
@@ -42,7 +42,7 @@ class SqlBox {
     _sql
   }
 
-  def setPreparedStatementParams(stmt:PreparedStatement) = {
+  def setStatementParams(stmt:PreparedStatement) = {
     (1 to _paramList.size).foreach((idx) => {stmt.setObject(idx, _paramList(idx-1))})
   }
 }
