@@ -3,6 +3,39 @@ import java.sql.{Connection, PreparedStatement}
 /**
   *
   */
+
+object SqlBox {
+
+  case class SqlBoxRawValue(value:String)
+
+  def createInsert(tb:String, map: Map[String, Any]):SqlBox = {
+    val sqlBox = new SqlBox()
+    val columns = new StringBuilder()
+    val values = new StringBuilder()
+    map.foreach((kv) => {
+      columns ++= kv._1 ++= ","
+      kv._2 match {
+        case SqlBoxRawValue(val1:String) => {
+          values ++= val1 ++= ","
+        }
+        case _ => {
+          values ++= "?,"
+          sqlBox.putParam(true, kv._2)
+        }
+      }
+    })
+    if (columns.length > 0) {
+      columns.deleteCharAt(columns.length - 1)
+    }
+    if (values.length > 0) {
+      values.deleteCharAt(values.length - 1)
+    }
+    val sql = s"insert into $tb ($columns) values ($values)".toString
+    sqlBox.sql = sql
+    return sqlBox
+  }
+}
+
 class SqlBox {
 
   val _paramList = collection.mutable.ListBuffer[Any]()
