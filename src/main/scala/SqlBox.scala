@@ -7,6 +7,7 @@ import java.sql.{Connection, PreparedStatement, ResultSet}
 object SqlBox {
 
   case class SqlBoxRawValue(value:String)
+  case class SqlBoxValueWrapper(wrapper:String, value:Any)
 
   def createInsert(tb:String, map: Map[String, Any]):SqlBox = {
     val sqlBox = new SqlBox()
@@ -17,6 +18,10 @@ object SqlBox {
       kv._2 match {
         case SqlBoxRawValue(val1:String) => {
           values ++= val1 ++= ","
+        }
+        case SqlBoxValueWrapper(wrapper:String, val1:Any) => {
+          values ++= wrapper ++= ","
+          sqlBox.putParam(true, val1)
         }
         case _ => {
           values ++= "?,"
