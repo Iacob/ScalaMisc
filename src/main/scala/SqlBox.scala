@@ -1,4 +1,4 @@
-import java.sql.{Connection, PreparedStatement}
+import java.sql.{Connection, PreparedStatement, ResultSet}
 
 /**
   *
@@ -77,5 +77,22 @@ class SqlBox {
 
   def setStatementParams(stmt:PreparedStatement) = {
     (1 to _paramList.size).foreach((idx) => {stmt.setObject(idx, _paramList(idx-1))})
+  }
+
+  case class QueryResult(statement:PreparedStatement, resultSet:ResultSet)
+  case class UpdateResult(statement:PreparedStatement, rows:Int)
+
+  def query(connection:Connection):QueryResult = {
+    val stmt = connection.prepareStatement(this.sql)
+    this.setStatementParams(stmt)
+    val resultSet = stmt.executeQuery()
+    return new QueryResult(stmt, resultSet)
+  }
+
+  def update(connection: Connection):UpdateResult = {
+    val stmt = connection.prepareStatement(this.sql)
+    this.setStatementParams(stmt)
+    val rows = stmt.executeUpdate()
+    return new UpdateResult(stmt, rows)
   }
 }
